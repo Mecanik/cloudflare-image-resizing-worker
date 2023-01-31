@@ -3,7 +3,7 @@
 
  This is an alternative solution to my [WordPress](https://github.com/Mecanik/cloudflare-image-resizing) plugin.
 
- Please read my full article to learn more: []().
+ Please read my full article to learn more: [Cloudflare Image Resizing for WordPress](https://mecanik.dev/en/posts/cloudflare-image-resizing-for-wordpress/).
  
 ## Current features
 * Rewrites all src and srcset tags
