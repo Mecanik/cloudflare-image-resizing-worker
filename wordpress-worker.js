@@ -161,6 +161,28 @@ class ImageTagRewriter extends HTMLRewriter {
 			}
 		}
 
+		// Extra - handle "smart" plugins like WP Rocket and other bananas
+		const datalazysrc = element.getAttribute("data-lazy-src");
+
+		if (datalazysrc) {
+			if (datalazysrc.indexOf(`/wp-content/`) !== -1 && datalazysrc.indexOf('/cdn-cgi/image/') === -1) {
+				let result = datalazysrc.replace(rgxSrc, `$1${CDN}$2$3`);
+
+				element.setAttribute("data-lazy-src", result);
+			}
+		}
+
+		// Extra - handle "smart" plugins like WP Rocket and other bananas
+		const datalazysrcset = element.getAttribute("data-lazy-srcset");
+
+		if (datalazysrcset) {
+			if (datalazysrcset.indexOf(`/wp-content/`) !== -1 && datalazysrcset.indexOf('/cdn-cgi/image/') === -1) {
+				let result = datalazysrcset.replace(rgxSrc, `$1${CDN}$2$3`);
+
+				element.setAttribute("data-lazy-srcset", result);
+			}
+		}
+		
 		// Lazy load
 		if (!element.hasAttribute("loading") && IMAGE_LAZY_LOAD === true) {
 			element.setAttribute("loading", "lazy");
