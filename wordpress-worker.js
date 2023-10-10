@@ -616,6 +616,12 @@ class StyleTagRewriter extends HTMLRewriter {
             return;
         }
 
+        if(inlineCSS.text.indexOf("#wpadminbar") !== -1)
+        {
+            console.debug(`StyleTagRewriter -> WP Admin Bar CSS (skipping)`);
+            return;
+        }
+		
         // Buffering the text content
         this.buffer += inlineCSS.text;
 
