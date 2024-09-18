@@ -749,7 +749,12 @@ class LinkTagRewriter extends HTMLRewriter {
         if (element.hasAttribute("rel")) {
             const rel = element.getAttribute("rel");
 
-            if (rel && rel === "shortcut icon" || rel === "icon" || rel === "apple-touch-icon" || rel === "apple-touch-icon-precomposed") {
+            if (rel && rel === "shortcut icon" 
+				|| rel === "icon" 
+				|| rel === "apple-touch-icon" 
+				|| rel === "apple-touch-icon-precomposed"	
+				|| rel === "apple-touch-startup-image"
+				) {
                 // Base CDN
                 let CDN = "/cdn-cgi/image/";
                 let sizes = element.getAttribute("sizes");
