@@ -605,7 +605,6 @@ class StyleTagRewriter extends HTMLRewriter {
     constructor(config) {
         super();
         this.buffer = "";
-        this.transformedBuffer = "";
         this.config = config;
     }
 
@@ -616,43 +615,36 @@ class StyleTagRewriter extends HTMLRewriter {
             return;
         }
 
-        if(inlineCSS.text.indexOf("#wpadminbar") !== -1)
-        {
-            console.debug(`StyleTagRewriter -> WP Admin Bar CSS (skipping)`);
-            return;
-        }
-		
         // Buffering the text content
         this.buffer += inlineCSS.text;
 
-        // If this is the last chunk, process the buffered content
+        // If this is the last chunk, process the buffered content and emit it in place.
         if (inlineCSS.lastInTextNode) {
-            // Base CDN
-            let CDN = "/cdn-cgi/image/";
-            CDN += this.config.IMAGE_QUALITY ? `quality=${this.config.IMAGE_QUALITY},` : '';
-            CDN += this.config.IMAGE_GRAVITY ? `gravity=${this.config.IMAGE_GRAVITY},` : '';
-            CDN += this.config.IMAGE_SHARPEN ? `sharpen=${this.config.IMAGE_SHARPEN},` : '';
-            CDN += this.config.IMAGE_METADATA ? `metadata=${this.config.IMAGE_METADATA},` : '';
-            CDN += `format=auto,onerror=redirect`;
+            let result = this.buffer;
 
-            let result = this.buffer.replace(rgxCss, `url('$2${CDN}$3')`);
+            // Leave WP Admin Bar CSS untouched
+            if (result.indexOf("#wpadminbar") === -1) {
+                // Base CDN
+                let CDN = "/cdn-cgi/image/";
+                CDN += this.config.IMAGE_QUALITY ? `quality=${this.config.IMAGE_QUALITY},` : '';
+                CDN += this.config.IMAGE_GRAVITY ? `gravity=${this.config.IMAGE_GRAVITY},` : '';
+                CDN += this.config.IMAGE_SHARPEN ? `sharpen=${this.config.IMAGE_SHARPEN},` : '';
+                CDN += this.config.IMAGE_METADATA ? `metadata=${this.config.IMAGE_METADATA},` : '';
+                CDN += `format=auto,onerror=redirect`;
 
-            // Replace with the processed content
+                result = result.replace(rgxCss, `url('$2${CDN}$3')`);
+            }
+
+            // Replace the final chunk with the full transformed buffer.
+            // html: true prevents CSS child combinators (>) from being entity-escaped (see #6).
             inlineCSS.replace(result, {
-                html: false
-            });
-
-            this.transformedBuffer = result.replace(/&gt;/g, '>');
-        }
-    }
-
-    async element(element) {
-        if (this.transformedBuffer) {
-            element.setInnerContent(this.transformedBuffer, {
                 html: true
             });
+
             this.buffer = "";
-            this.transformedBuffer = "";
+        } else {
+            // Remove intermediate chunks; the whole buffer is re-emitted with the final chunk.
+            inlineCSS.remove();
         }
     }
 }
@@ -721,7 +713,7 @@ class DivTagRewriter extends HTMLRewriter {
             CDN += this.config.IMAGE_METADATA ? `metadata=${this.config.IMAGE_METADATA},` : '';
             CDN += `format=auto,onerror=redirect`;
 
-            let result = bg.replace(rgxSrc, `$1${CDN}$2$3`);
+            let result = dataimageid.replace(rgxSrc, `$1${CDN}$2$3`);
 
             element.setAttribute("data-image-id", result);
         }
